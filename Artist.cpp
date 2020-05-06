@@ -6,27 +6,42 @@ Artist::Artist() {
 }
 
 Artist::Artist(char* name, std::string date, std::string place, int availablePlaces, int occupiedPlaces) {
-	this->name = new char[strlen(name) + 1];
-	strcpy_s(this->name, strlen(name) + 1, name);
+	if (name) {
+		this->name = new char[strlen(name) + 1];
+		strcpy_s(this->name, strlen(name) + 1, name);
+	}
+	else
+		this->name = nullptr;
 	Show s(date, place, availablePlaces, occupiedPlaces);
 	shows.emplace_back(s);
 }
 
 Artist::Artist(char* name, std::vector<Show> shows) {
-	this->name = new char[strlen(name) + 1];
-	strcpy_s(this->name, strlen(name) + 1, name);
+	if (name) {
+		this->name = new char[strlen(name) + 1];
+		strcpy_s(this->name, strlen(name) + 1, name);
+	}
+	else
+		this->name = nullptr;
 	std::copy(shows.begin(), shows.end(), back_inserter(this->shows));
 }
 
 Artist::Artist(const Artist& a) {
-	this->name = new char[strlen(a.name) + 1];
-	strcpy_s(this->name, strlen(a.name) + 1, a.name);
+	if (a.name) {
+		this->name = new char[strlen(a.name) + 1];
+		strcpy_s(this->name, strlen(a.name) + 1, a.name);
+	}
+	else
+		this->name = nullptr;
 	std::copy(a.shows.begin(), a.shows.end(), back_inserter(this->shows));
 }
 
 Artist::~Artist() {
 	if (this->name)
-		delete[] this->name, this->name = nullptr;
+	{
+		delete[] this->name;
+		this->name = nullptr;
+	}
 	this->shows.clear();
 }
 
@@ -36,11 +51,19 @@ char* Artist::getName()
 }
  
 void Artist::setName(char* name) {
-	if (this->name)
-		delete[] this->name, this->name = nullptr;
-	this->name = new char[strlen(name) + 1];
-	strcpy_s(this->name, strlen(name) + 1, name);
+	if (name) {
+		if (this->name)
+		{
+			delete[] this->name;
+			this->name = nullptr;
+		}
+		this->name = new char[strlen(name) + 1];
+		strcpy_s(this->name, strlen(name) + 1, name);
+	}
+	else
+		this->name = nullptr;
 }
+	
 
 std::vector<Show> Artist::getShows() {
 	return this->shows;
@@ -53,7 +76,7 @@ void Artist::setShows(std::vector<Show> shows) {
 
 Artist& Artist::operator=(const Artist& a) {
     this->setName(a.name);
-	std::copy(a.shows.begin(), a.shows.end(), back_inserter(this->shows));
+	this->setShows(a.shows);
 	return *this;
 }
 
@@ -66,7 +89,12 @@ bool Artist::operator==(const Artist& a) const {
 			ok = false;
 	showz.clear();
 	if (ok)
-		return !strcmp(this->name, a.name);
+		if ((!this->name && a.name) || (this->name && !a.name))
+			return false;
+		else if (!this->name && !a.name)
+			return true;
+		else
+			return !strcmp(this->name, a.name);
 	else
 		return false;
 }
@@ -76,23 +104,18 @@ IE* Artist::clone() {
 }
 
 void Artist::copy(IE* e) {
-	Artist* a = (Artist*)e;
+	Artist* a = dynamic_cast<Artist*>(e);
+	if (a == nullptr)
+		return;
 	this->setName(a->name);
-	std::copy(a->shows.begin(), a->shows.end(), back_inserter(this->shows));
+	this->setShows(a->shows);
 }
 
 bool Artist::equals(IE* e) {
-	Artist* a = (Artist*)e;
-	bool ok = true;
-	std::vector<Show> showz;
-	std::copy(a->shows.begin(), a->shows.end(), back_inserter(showz));
-	for (Show& s : showz)
-		if (std::find(this->shows.begin(), this->shows.end(), s) == this->shows.end())
-			ok = false;
-	if (ok)
-		return !strcmp(this->name, a->name);
-	else
+	Artist* a = dynamic_cast<Artist*>(e);
+	if (a == nullptr)
 		return false;
+	return this->operator==(*a);
 }
 
 std::string Artist::toStringCSV() {

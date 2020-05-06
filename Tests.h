@@ -1,9 +1,16 @@
 #pragma once
 #include "RepoFileCSV.h"
 #include "RepoFileTXT.h"
-void testShow();
-void testFilm();
-void testArtist();
-void testRepo();
-void testRepoFileTXT();
-void testRepoFileCSV();
+class Test {
+private:
+	void testShow();
+	void testFilm();
+	void testArtist();
+	void testRepo();
+	void testRepoFileTXT();
+	void testRepoFileCSV();
+public:
+	void runAll();
+	Test() {}
+	~Test() {}
+};

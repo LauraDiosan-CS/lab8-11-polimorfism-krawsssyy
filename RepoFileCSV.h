@@ -105,7 +105,8 @@ public:
 					this->addElem(a);
 				}
 			}
-		}
+			f.close();
+		} 
 
 	}
 	

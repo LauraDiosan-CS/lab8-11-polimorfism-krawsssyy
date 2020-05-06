@@ -4,7 +4,9 @@ Repo::Repo() {
 }
 
 Repo::Repo(std::vector<IE*> elems) {
-	std::copy(elems.begin(), elems.end(), back_inserter(this->elems));
+	int len = elems.size();
+	for (int i = 0; i < len; i++)
+		this->elems.push_back(elems[i]->clone());
 }
 
 Repo::~Repo() {
@@ -25,7 +27,7 @@ int Repo::getElemPos(IE* elem) {
 	for (i = 0; i < len; i++)
 		if (elems[i]->equals(elem))
 			break;
-	return i == len ? 0 : i;
+	return i == len ? -1 : i;
 }
 
 IE* Repo::getElemByPos(int pos) {
@@ -40,7 +42,7 @@ IE* Repo::getElemByPos(int pos) {
 
 void Repo::modifyElem(IE* oldElem, IE* newElem) {
 	int pos = this->getElemPos(oldElem);
-	if (pos == 0)
+	if (pos == -1)
 		return;
 	int len = this->elems.size();
 	for(int i = 0; i < len; i++)
@@ -54,7 +56,7 @@ void Repo::modifyElem(IE* oldElem, IE* newElem) {
 
 void Repo::deleteElem(IE* elem) {
 	int pos = this->getElemPos(elem);
-	if (pos == 0)
+	if (pos == -1)
 		return;
 	int len = this->elems.size();
 	delete this->elems[pos];

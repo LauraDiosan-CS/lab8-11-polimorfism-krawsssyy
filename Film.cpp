@@ -7,23 +7,48 @@ Film::Film() {
 }
 
 Film::Film(char* title, std::vector<std::string> actors, std::string date, std::string place, int availablePlaces, int occupiedPlaces) {
-	this->title = new char[strlen(title) + 1];
-	strcpy_s(this->title, strlen(title) + 1, title);
+	if (title)
+	{
+		this->title = new char[strlen(title) + 1];
+		strcpy_s(this->title, strlen(title) + 1, title);
+	}
+	else
+		this->title = nullptr;
 	std::copy(actors.begin(), actors.end(), back_inserter(this->actors));
 	Show s(date, place, availablePlaces, occupiedPlaces);
 	this->shows.emplace_back(s);
 }
 
 Film::Film(char* title, std::vector<std::string> actors, std::vector<Show> shows) {
-	this->title = new char[strlen(title) + 1];
-	strcpy_s(this->title, strlen(title) + 1, title);
+	if (title)
+	{
+		this->title = new char[strlen(title) + 1];
+		strcpy_s(this->title, strlen(title) + 1, title);
+	}
+	else
+		this->title = nullptr;
 	std::copy(actors.begin(), actors.end(), back_inserter(this->actors));
 	std::copy(shows.begin(), shows.end(), back_inserter(this->shows));
 }
 
+Film::Film(const Film& f) {
+	if (f.title)
+	{
+		this->title = new char[strlen(f.title) + 1];
+		strcpy_s(this->title, strlen(f.title) + 1, f.title);
+	}
+	else
+		this->title = nullptr;
+	std::copy(f.actors.begin(), f.actors.end(), back_inserter(this->actors));
+	std::copy(f.shows.begin(), f.shows.end(), back_inserter(this->shows));
+}
+
 Film::~Film() {
 	if (this->title)
-		delete[] this->title, this->title = nullptr;
+	{
+		delete[] this->title;
+		this->title = nullptr;
+	}
 	this->actors.clear();
 	this->shows.clear();
 }
@@ -33,10 +58,19 @@ char* Film::getTitle() {
 }
 
 void Film::setTitle(char* title) {
-	if (this->title)
-		delete[] this->title, this->title = nullptr;
-	this->title = new char[strlen(title) + 1];
-	strcpy_s(this->title, strlen(title) + 1, title);
+	if (title)
+	{
+		if (this->title)
+		{
+			delete[] this->title;
+			this->title = nullptr;
+		}
+		this->title = new char[strlen(title) + 1];
+		strcpy_s(this->title, strlen(title) + 1, title);
+	}
+	else
+		this->title = nullptr;
+	
 }
 
 std::vector<std::string> Film::getActors() {
@@ -71,16 +105,21 @@ bool Film::operator==(const Film& f) const {
 	bool ok = true;
 	std::copy(f.shows.begin(), f.shows.end(), back_inserter(showz));
 	std::copy(f.actors.begin(), f.actors.end(), back_inserter(actorz));
-	for (Show& s : showz)
-		if (std::find(this->shows.begin(), this->shows.end(), s) == this->shows.end())
-			ok = false;
 	for (std::string& s : actorz)
 		if (std::find(this->actors.begin(), this->actors.end(), s) == this->actors.end())
+			ok = false;
+	for (Show& s : showz)
+		if (std::find(this->shows.begin(), this->shows.end(), s) == this->shows.end())
 			ok = false;
 	showz.clear();
 	actorz.clear();
 	if (ok)
-		return !strcmp(this->title, f.title);
+		if ((!this->title && f.title) || (this->title && !f.title))
+			return false;
+		else if (!this->title && !f.title)
+			return true;
+		else
+			return !strcmp(this->title, f.title);
 	else
 		return false;
 }
@@ -90,15 +129,20 @@ IE* Film::clone() {
 }
 
 void Film::copy(IE* e) {
-	Film* f = (Film*)e;
+	Film* f = dynamic_cast<Film*>(e);
+	if (f == nullptr)
+		return;
 	this->setTitle(f->title);
 	this->setActors(f->actors);
 	this->setShows(f->shows);
 }
 
 bool Film::equals(IE* e) {
-	Film* f = (Film*)e;
+	Film* f = dynamic_cast<Film*>(e);
+	if (f == nullptr)
+		return false;
 	return this->operator==(*f);
+	
 }
 
 std::string Film::toStringCSV() {

@@ -89,6 +89,7 @@ public:
 
 
 			}
+			f.close();
 		}
 	}
 	void saveToFile() {
