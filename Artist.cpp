@@ -14,6 +14,17 @@ Artist::Artist(char* name, std::string date, std::string place, int availablePla
 		this->name = nullptr;
 	Show s(date, place, availablePlaces, occupiedPlaces);
 	shows.emplace_back(s);
+	
+}
+
+Artist::Artist(char* name, const Show& s) {
+	if (name) {
+		this->name = new char[strlen(name) + 1];
+		strcpy_s(this->name, strlen(name) + 1, name);
+	}
+	else
+		this->name = nullptr;
+	shows.emplace_back(s);
 }
 
 Artist::Artist(char* name, std::vector<Show> shows) {
@@ -67,6 +78,11 @@ void Artist::setName(char* name) {
 
 std::vector<Show> Artist::getShows() {
 	return this->shows;
+}
+
+void Artist::addShow(const Show& s)
+{
+	this->shows.emplace_back(s);
 }
 
 void Artist::setShows(std::vector<Show> shows) {

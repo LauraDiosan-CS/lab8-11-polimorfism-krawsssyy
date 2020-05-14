@@ -6,9 +6,10 @@ private:
 	void testShow();
 	void testFilm();
 	void testArtist();
-	void testRepo();
+	//void testRepo();
 	void testRepoFileTXT();
 	void testRepoFileCSV();
+	void testService();
 public:
 	void runAll();
 	Test() {}

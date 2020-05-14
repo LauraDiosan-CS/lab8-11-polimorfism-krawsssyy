@@ -19,6 +19,18 @@ Film::Film(char* title, std::vector<std::string> actors, std::string date, std::
 	this->shows.emplace_back(s);
 }
 
+Film::Film(char* title, std::vector<std::string> actors, const Show& s) {
+	if (title)
+	{
+		this->title = new char[strlen(title) + 1];
+		strcpy_s(this->title, strlen(title) + 1, title);
+	}
+	else
+		this->title = nullptr;
+	std::copy(actors.begin(), actors.end(), back_inserter(this->actors));
+	this->shows.emplace_back(s);
+}
+
 Film::Film(char* title, std::vector<std::string> actors, std::vector<Show> shows) {
 	if (title)
 	{

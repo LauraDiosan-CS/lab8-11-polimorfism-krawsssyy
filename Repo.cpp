@@ -21,18 +21,20 @@ void Repo::addElem(IE* elem) {
 	elems.emplace_back(elem->clone());
 }
 
-int Repo::getElemPos(IE* elem) {
+int Repo::getElemPos(IE* elem) throw(MyExc){
 	int len = this->elems.size();
 	int i = 0;
 	for (i = 0; i < len; i++)
 		if (elems[i]->equals(elem))
 			break;
-	return i == len ? -1 : i;
+	if (i == len)
+		throw MyExc("Given element was not found!");
+	return i;
 }
 
-IE* Repo::getElemByPos(int pos) {
-	if ((size_t) pos >= this->elems.size() or pos < 0)
-		return nullptr;
+IE* Repo::getElemByPos(int pos) throw(MyExc){
+	if ((size_t)pos >= this->elems.size() or pos < 0)
+		throw MyExc("Invalid position given!");
 	int len = this->elems.size();
 	int i = 0;
 	for (i = 0; i < len; i++)
@@ -42,8 +44,6 @@ IE* Repo::getElemByPos(int pos) {
 
 void Repo::modifyElem(IE* oldElem, IE* newElem) {
 	int pos = this->getElemPos(oldElem);
-	if (pos == -1)
-		return;
 	int len = this->elems.size();
 	for(int i = 0; i < len; i++)
 		if (i == pos)
@@ -56,8 +56,6 @@ void Repo::modifyElem(IE* oldElem, IE* newElem) {
 
 void Repo::deleteElem(IE* elem) {
 	int pos = this->getElemPos(elem);
-	if (pos == -1)
-		return;
 	int len = this->elems.size();
 	delete this->elems[pos];
 	this->elems[pos] = nullptr;

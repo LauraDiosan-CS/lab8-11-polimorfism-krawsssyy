@@ -8,12 +8,14 @@ private:
 public:
 	Artist();
 	Artist(char* name, std::string date, std::string place, int availablePlaces, int occupiedPlaces);
+	Artist(char* name, const Show& s);
 	Artist(char* name, std::vector<Show> shows);
 	Artist(const Artist& a);
 	~Artist();
 	char* getName();
 	void setName(char* name);
 	std::vector<Show> getShows();
+	void addShow(const Show& s);
 	void setShows(std::vector<Show> shows);
 	Artist& operator=(const Artist& a);
 	bool operator==(const Artist& a) const;

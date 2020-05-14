@@ -9,6 +9,7 @@ private:
 public:
 	Film();
 	Film(char* title, std::vector<std::string> actors, std::string date, std::string place, int availablePlaces, int occupiedPlaces);
+	Film(char* title, std::vector<std::string> actors, const Show& s);
 	Film(char* title, std::vector<std::string> actors, std::vector<Show> shows);
 	Film(const Film& f);
 	~Film();
