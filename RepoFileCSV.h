@@ -21,8 +21,10 @@ public:
 	void loadFromFile() {
 		if (this->FILE_PATH)
 		{
-			this->clearRepo();
 			std::ifstream f(FILE_PATH);
+			if (!f.is_open())
+				throw MyExc("Wrong path to the file or filename!");
+			this->clearRepo();
 			std::string line;
 			while (getline(f, line))
 			{
@@ -114,6 +116,8 @@ public:
 		if (this->FILE_PATH)
 		{
 			std::ofstream f(FILE_PATH);
+			if (!f.is_open())
+				throw MyExc("Wrong path to the file or filename!");
 			int len = this->getSize();
 			std::vector<IE*> elems = this->getAll();
 			for (int i = 0; i < len; i++)
