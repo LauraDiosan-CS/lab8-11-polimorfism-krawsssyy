@@ -2,12 +2,14 @@
 #include <assert.h>
 
 void Test::runAll() {
-	testShow();
-	testFilm();
-	testArtist();
-	//testRepo();
-	testRepoFileTXT();
-	testRepoFileCSV();
+	this->testShow();
+	this->testFilm();
+	this->testArtist();
+	//this->testRepo();
+	this->testRepoFileTXT();
+	this->testRepoFileCSV();
+	this->testService();
+	
 }
 
 void Test::testShow() {
@@ -277,4 +279,8 @@ void Test::testRepoFileCSV() {
 	delete r;
 	r = nullptr;
 	remove("TestRepoFileCSV.csv");
+}
+
+void Test::testService() {
+	;
 }

@@ -18,7 +18,7 @@ private:
 	
 public:
 	Service(Repo* repo, Validator* sV, Validator* aV, Validator* fV) : r(repo), showVal(sV), artistVal(aV), filmVal(fV) {}
-	~Service() {}
+	~Service() { }
 	void login(std::string uName, std::string passw);
 	void addArtistShow(char* name, std::string date, std::string place, int availablePlaces, int occupiedPlaces);
 	void addArtistShows(char* name, std::vector<Show> shows);
@@ -28,6 +28,10 @@ public:
 	IE* getFilmByTitle(char* title);
 	void modifyArtist(char* name, char* newName, std::vector<Show> shows);
 	void modifyFilm(char* title, char* newTitle, std::vector<std::string> actors, std::vector<Show> shows);
-	void deleteElem(IE* e);
+	void deleteElem(char* arg);
 	std::vector<IE*> getAll();
+	std::string getRepoType();
+	void revertAccess();
+	std::vector<IE*> givenDate(std::string date);
+	bool buyTickets(std::string date, std::string place, int amount);
 };

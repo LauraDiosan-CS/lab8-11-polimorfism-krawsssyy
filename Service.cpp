@@ -5,6 +5,8 @@
 #include "Service.h"
 #include "Artist.h"
 #include "Film.h"
+#include "RepoFileTXT.h"
+#include "RepoFileCSV.h"
 
 void Service::login(std::string uName, std::string passw)
 {
@@ -96,7 +98,7 @@ IE* Service::getArtistByName(char* name)
 		return nullptr;
 	}
 	else
-	throw MyExc("Access denied!");
+		throw MyExc("Access denied!");
 }
 
 IE* Service::getFilmByTitle(char* title)
@@ -122,7 +124,7 @@ void Service::modifyArtist(char* name, char* newName, std::vector<Show> shows)
 		if (result == nullptr){
 			delete result;
 			result = nullptr;
-			return;
+			throw MyExc("Artist not found!");
 		}
 		for (Show& s : shows)
 			showVal->validate(&s);
@@ -137,11 +139,11 @@ void Service::modifyArtist(char* name, char* newName, std::vector<Show> shows)
 void Service::modifyFilm(char* title, char* newTitle, std::vector<std::string> actors, std::vector<Show> shows)
 {
 	if (this->access == 1) {
-		IE* result = this->getArtistByName(title);
+		IE* result = this->getFilmByTitle(title);
 		if (result == nullptr) {
 			delete result;
 			result = nullptr;
-			return;
+			throw MyExc("Film not found!");
 		}
 		for (Show& s : shows)
 			showVal->validate(&s);
@@ -154,15 +156,120 @@ void Service::modifyFilm(char* title, char* newTitle, std::vector<std::string> a
 
 }
 
-void Service::deleteElem(IE* e)
+void Service::deleteElem(char* arg)
 {
-	if (this->access == 1) 
-		this->r->deleteElem(e);
+	if (this->access == 1) {
+		if (this->getArtistByName(arg) != nullptr)
+			this->r->deleteElem(this->getArtistByName(arg));
+		else if (this->getFilmByTitle(arg) != nullptr)
+			this->r->deleteElem(this->getFilmByTitle(arg));
+		else
+			throw MyExc("Element not found!");
+	}
 	else
 		throw MyExc("Access denied!");
 }
 
 std::vector<IE*> Service::getAll()
 {
-	return this->r->getAll();
+	if (this->access == 1) 
+		return this->r->getAll();
+	else
+		throw MyExc("Access denied!");
+}
+
+std::string Service::getRepoType() {
+	if (this->access == 1) {
+		if (dynamic_cast<RepoFileTXT*>(this->r) != nullptr)
+			return "TXT";
+		else if (dynamic_cast<RepoFileCSV*>(this->r) != nullptr)
+			return "CSV";
+		else
+			throw MyExc("Unknown repository!");
+	}
+	else
+		throw MyExc("Access denied!");
+}
+
+void Service::revertAccess() {
+	if (this->access == 1)
+		this->access = 0;
+	else
+		throw MyExc("You weren't able to logout since you haven't even logged in !");
+}
+
+std::vector<IE*> Service::givenDate(std::string date) {
+	if (this->access == 1) {
+		std::vector<IE*> all = this->getAll();
+		std::vector<IE*> result;
+		for (IE* e : all) {
+			if (dynamic_cast<Artist*>(e) != nullptr) {
+				for (Show& s : dynamic_cast<Artist*>(e)->getShows())
+					if (s.getDate() == date)
+					{
+						result.emplace_back(e->clone());
+						break;
+					}
+			}
+			if (dynamic_cast<Film*>(e) != nullptr) {
+				for (Show& s : dynamic_cast<Film*>(e)->getShows())
+					if (s.getDate() == date)
+					{
+						result.emplace_back(e->clone());
+						break;
+					}
+			}
+		}
+		return result;
+	}
+	else
+		throw MyExc("Access denied!");
+}
+
+bool Service::buyTickets(std::string date, std::string place, int amount) {
+	if (this->access == 1) {
+		std::vector<IE*> all = this->getAll();
+		bool ok = 0;
+		for (IE* e : all) {
+			if (dynamic_cast<Artist*>(e) != nullptr) {
+				std::vector<Show> shows = dynamic_cast<Artist*>(e)->getShows();
+				for (int i = 0; i < shows.size(); i++)
+					if (shows[i].getDate() == date && shows[i].getPlace() == place)
+					{
+						if (shows[i].getOccupiedPlaces() + amount > shows[i].getAvailablePlaces())
+							throw MyExc("You can't buy this many tickets!");
+						else
+						{
+							int occ = shows[i].getOccupiedPlaces();
+							shows[i].setOccupiedPlaces(occ + amount);
+							this->modifyArtist(dynamic_cast<Artist*>(e)->getName(), dynamic_cast<Artist*>(e)->getName(), shows);
+							ok = 1;
+							break;
+						}
+					}
+			}
+			if (ok)
+				break;
+			if (dynamic_cast<Film*>(e) != nullptr) {
+				std::vector<Show> shows = dynamic_cast<Film*>(e)->getShows();
+				for (int i = 0; i < shows.size(); i++)
+					if (shows[i].getDate() == date && shows[i].getPlace() == place)
+					{
+						if (shows[i].getOccupiedPlaces() + amount > shows[i].getAvailablePlaces())
+							throw MyExc("You can't buy this many tickets!");
+						else
+						{
+							int occ = shows[i].getOccupiedPlaces();
+							shows[i].setOccupiedPlaces(occ + amount);
+							this->modifyFilm(dynamic_cast<Film*>(e)->getTitle(), dynamic_cast<Film*>(e)->getTitle(), dynamic_cast<Film*>(e)->getActors(), shows);
+							ok = 1;
+							break;
+						}
+					}
+			}
+		}
+		return ok;
+	}
+	else
+		throw MyExc("Access denied!");
 }

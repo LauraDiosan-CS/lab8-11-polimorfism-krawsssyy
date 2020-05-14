@@ -14,6 +14,7 @@ public:
 		this->FILE_PATH = new char[strlen(FILE_PATH) + 1];
 		strcpy_s(this->FILE_PATH, strlen(FILE_PATH) + 1, FILE_PATH);
 	}
+
 	~RepoFileTXT() {
 		if (this->FILE_PATH)
 			delete[] this->FILE_PATH, this->FILE_PATH = nullptr;
@@ -22,6 +23,9 @@ public:
 	void loadFromFile() {
 		if (this->FILE_PATH)
 		{
+			std::string str(this->FILE_PATH);
+			if (str.find(".txt") == std::string::npos && str.find(".TXT") == std::string::npos)
+				throw MyExc("Invalid file extension!");
 			std::ifstream f(FILE_PATH);
 			if (!f.is_open())
 				throw MyExc("Wrong path to the file or filename!");
@@ -97,6 +101,9 @@ public:
 	void saveToFile() {
 		if (this->FILE_PATH)
 		{
+			std::string str(this->FILE_PATH);
+			if (str.find(".txt") == std::string::npos && str.find(".TXT") == std::string::npos)
+				throw MyExc("Invalid file extension!");
 			std::ofstream f(FILE_PATH);
 			if (!f.is_open())
 				throw MyExc("Wrong path to the file or filename!");
